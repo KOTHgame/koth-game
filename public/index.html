@@ -453,17 +453,11 @@ function updateScoreTimer(){
 function showStart(){
   ROOM=null; PRIV=null;
   const btn=$('home-btn'); if(btn) btn.style.display='none';
-  const previewIds=['pepe','cat','monkey','doge','wojak','trollface','nyan','chihuahua'];
-  const previewHTML=previewIds.map(id=>{
-    const a=MEME_AVATARS.find(x=>x.id===id);
-    return a?`<div class="start-sticker" style="background:${a.bg};">${a.svg}</div>`:'';
-  }).join('');
   render(`
     <div class="start-hero">
       <span class="crown">👑</span>
       <div class="heading" style="line-height:.9;">KING OF<br>THE HILL</div>
       <div class="sub" style="margin-top:8px;margin-bottom:16px;">Das ultimative Listenspiel</div>
-      <div class="start-stickers">${previewHTML}</div>
     </div>
 
     <div class="card" style="margin-bottom:10px;">
