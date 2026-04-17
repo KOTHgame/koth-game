@@ -569,13 +569,19 @@ function lobbyPlayersHTML(){
   if(!ROOM) return '';
   const isHost=ROOM.hostId===STATE.id;
   return ROOM.players.map(p=>`
-    <div class="pgrid-chip ${p.ready?'ready':''} ${p.id===STATE.id?'me':''} ${!p.connected?'offline':''}">
-      ${isHost&&p.id!==STATE.id?`<div class="pgrid-kick" onclick="kickPlayer('${p.id}')">✕</div>`:''}
-      ${p.id===ROOM.hostId?'<div class="pgrid-host">👑</div>':''}
-      <div class="pgrid-av">${getAv(p.avatar)}</div>
-      <div class="pgrid-name">${esc(p.name)}${p.id===STATE.id?' (du)':''}</div>
-      <div class="pgrid-status" style="color:${p.ready?'var(--green)':p.connected?'var(--muted)':'var(--red)'}">
-        ${!p.connected?'OFFLINE':p.ready?'READY ✓':'wartet…'}
+    <div class="plist-chip ${p.ready?'ready':''} ${p.id===STATE.id?'me':''} ${!p.connected?'offline':''}">
+      <div class="plist-av" style="background:${MEME_AVATARS.find(a=>a.id===p.avatar)?.bg||'#333'};">${getAv(p.avatar,'44px')}</div>
+      <div class="plist-info">
+        <div class="plist-name">${esc(p.name)}${p.id===STATE.id?' <span style="color:var(--gold);font-size:11px;">(du)</span>':''}</div>
+        <div class="plist-sub" style="color:${p.ready?'var(--green)':p.connected?'var(--muted)':'var(--red)'}">
+          ${!p.connected?'offline':p.ready?'✓ bereit':'wartet...'}
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+        ${p.id===ROOM.hostId?'<span class="plist-badge badge-host">HOST 👑</span>':''}
+        ${p.ready&&p.id!==ROOM.hostId?'<span class="plist-badge badge-ready">READY</span>':''}
+        ${!p.ready&&p.id!==ROOM.hostId&&p.connected?'<span class="plist-badge badge-wait">WARTET</span>':''}
+        ${isHost&&p.id!==STATE.id?`<div class="kick-btn" onclick="kickPlayer('${p.id}')">KICK</div>`:''}
       </div>
     </div>`).join('');
 }
@@ -583,7 +589,7 @@ function lobbyPlayersHTML(){
 function updateLobbyPlayers(){
   const pl=$('playerList'); if(!pl){renderLobby();return;}
   pl.innerHTML=lobbyPlayersHTML();
-  const pb=$('player-badge'); if(pb) pb.textContent=ROOM.players.length+'/12 Spieler';
+  const pb=$('player-badge'); if(pb) pb.textContent=ROOM.players.length+'/12';
   const sr=$('sv-rounds'),sa=$('sv-answer'),sl=$('sv-list');
   if(sr) sr.textContent=ROOM.maxRounds;
   if(sa) sa.textContent=ROOM.answerTime+'s';
@@ -617,7 +623,7 @@ function renderLobby(){
     </div>
 
     <!-- Player Grid -->
-    <div class="player-grid" id="playerList">
+    <div class="plist" id="playerList">
       ${lobbyPlayersHTML()}
     </div>
 
