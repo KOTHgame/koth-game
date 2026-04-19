@@ -24,96 +24,99 @@ const PORT=process.env.PORT||3000;
 
 // ── 80 Fragen – Fokus auf Chaos & Spaß ─────────
 const QUESTIONS=[
-  // 🔥 CHAOS (30 Fragen – der Kern des Spiels)
-  {id:'c1', cat:'🔥 Chaos', text:'Wie viele Ausreden kennst du, warum man zu spät kommt?'},
-  {id:'c2', cat:'🔥 Chaos', text:'Wie viele Dinge kann man verlieren, obwohl sie im Haus sind?'},
-  {id:'c3', cat:'🔥 Chaos', text:'Wie viele Arten gibt es, "bin unterwegs" zu lügen?'},
-  {id:'c4', cat:'🔥 Chaos', text:'Wie viele Gründe gibt es, ein Date abzubrechen?'},
-  {id:'c5', cat:'🔥 Chaos', text:'Wie viele Dinge sagen Eltern, die keinen Sinn ergeben?'},
-  {id:'c6', cat:'🔥 Chaos', text:'Wie viele Tiere würden dich in einem Kampf besiegen?'},
-  {id:'c7', cat:'🔥 Chaos', text:'Wie viele Dinge riechen besser als sie schmecken?'},
-  {id:'c8', cat:'🔥 Chaos', text:'Wie viele Gründe gibt es, das Handy nicht abzugeben?'},
-  {id:'c9', cat:'🔥 Chaos', text:'Wie viele Dinge tust du, die du niemandem erzählst?'},
-  {id:'c10',cat:'🔥 Chaos', text:'Wie viele Wege gibt es, eine Prüfung zu vergeigen?'},
-  {id:'c11',cat:'🔥 Chaos', text:'Wie viele Dinge nerven dich täglich?'},
-  {id:'c12',cat:'🔥 Chaos', text:'Wie viele Fast-Food-Ketten fallen dir ein?'},
-  {id:'c13',cat:'🔥 Chaos', text:'Wie viele Schimpfwörter kennst du?'},
-  {id:'c14',cat:'🔥 Chaos', text:'Wie viele seltsame Phobien gibt es?'},
-  {id:'c15',cat:'🔥 Chaos', text:'Wie viele Dinge machst du, bevor du schlafen gehst?'},
-  {id:'c16',cat:'🔥 Chaos', text:'Wie viele Dinge sagst du, die du nicht so meinst?'},
-  {id:'c17',cat:'🔥 Chaos', text:'Wie viele Ausreden gibt es, nicht Sport zu machen?'},
-  {id:'c18',cat:'🔥 Chaos', text:'Wie viele Dinge kaufst du, die du nie benutzt?'},
-  {id:'c19',cat:'🔥 Chaos', text:'Wie viele Gründe gibt es, jemandem nicht zu antworten?'},
-  {id:'c20',cat:'🔥 Chaos', text:'Wie viele Dinge lügst du täglich?'},
-  {id:'c21',cat:'🔥 Chaos', text:'Wie viele Wörter benutzt du, die kein Mensch versteht?'},
-  {id:'c22',cat:'🔥 Chaos', text:'Wie viele Gründe gibt es, einen Film abzubrechen?'},
-  {id:'c23',cat:'🔥 Chaos', text:'Wie viele Dinge vergisst du immer wieder?'},
-  {id:'c24',cat:'🔥 Chaos', text:'Wie viele Arten gibt es, jemandem zu schmeicheln?'},
-  {id:'c25',cat:'🔥 Chaos', text:'Wie viele Rapper mit Tattoos kennst du?'},
-  {id:'c26',cat:'🔥 Chaos', text:'Wie viele Wege gibt es, einen Streit zu gewinnen ohne Recht zu haben?'},
-  {id:'c27',cat:'🔥 Chaos', text:'Wie viele Dinge machst du nur wenn niemand zuschaut?'},
-  {id:'c28',cat:'🔥 Chaos', text:'Wie viele Gründe gibt es, nicht aufzuräumen?'},
-  {id:'c29',cat:'🔥 Chaos', text:'Wie viele Dinge hast du heute schon aufgeschoben?'},
-  {id:'c30',cat:'🔥 Chaos', text:'Wie viele Ausreden gibt es, kein Geld zu haben?'},
-  // 💡 KREATIV (15 Fragen)
-  {id:'k1', cat:'💡 Kreativ', text:'Nenne so viele Verwendungsmöglichkeiten für eine Büroklammer wie möglich'},
-  {id:'k2', cat:'💡 Kreativ', text:'Nenne so viele gelbe Dinge wie möglich'},
-  {id:'k3', cat:'💡 Kreativ', text:'Nenne so viele runde Dinge wie möglich'},
-  {id:'k4', cat:'💡 Kreativ', text:'Nenne so viele Dinge die du auf eine einsame Insel mitnehmen würdest'},
-  {id:'k5', cat:'💡 Kreativ', text:'Nenne so viele Dinge die leise sind wie möglich'},
-  {id:'k6', cat:'💡 Kreativ', text:'Nenne so viele Dinge die man mit Käse machen kann'},
-  {id:'k7', cat:'💡 Kreativ', text:'Nenne so viele Dinge die größer als ein Auto sind'},
-  {id:'k8', cat:'💡 Kreativ', text:'Nenne so viele Dinge die man im Dunkeln tun kann'},
-  {id:'k9', cat:'💡 Kreativ', text:'Nenne so viele Dinge die man nicht kaufen kann'},
-  {id:'k10',cat:'💡 Kreativ', text:'Nenne so viele Dinge die nach Regen aussehen'},
-  {id:'k11',cat:'💡 Kreativ', text:'Nenne so viele Gründe warum ein Hund besser ist als ein Mensch'},
-  {id:'k12',cat:'💡 Kreativ', text:'Nenne so viele Dinge die man mit einer leeren Flasche tun kann'},
-  {id:'k13',cat:'💡 Kreativ', text:'Nenne so viele Dinge die du nie einem Kind sagen würdest'},
-  {id:'k14',cat:'💡 Kreativ', text:'Nenne so viele Dinge die schwerer sind als sie aussehen'},
-  {id:'k15',cat:'💡 Kreativ', text:'Nenne so viele Dinge die man mit Klebeband reparieren kann'},
-  // 🎯 POP KULTUR (15 Fragen)
-  {id:'p1', cat:'🎯 Pop',    text:'Nenne so viele Marvel-Superhelden wie möglich'},
-  {id:'p2', cat:'🎯 Pop',    text:'Nenne so viele Disney-Filme wie möglich'},
-  {id:'p3', cat:'🎯 Pop',    text:'Nenne so viele Videospiele wie möglich'},
-  {id:'p4', cat:'🎯 Pop',    text:'Nenne so viele Brettspiele wie möglich'},
-  {id:'p5', cat:'🎯 Pop',    text:'Nenne so viele Netflix-Serien wie möglich'},
-  {id:'p6', cat:'🎯 Pop',    text:'Nenne so viele Musikgenres wie möglich'},
-  {id:'p7', cat:'🎯 Pop',    text:'Nenne so viele deutsche Rapper wie möglich'},
-  {id:'p8', cat:'🎯 Pop',    text:'Nenne so viele Fußballclubs wie möglich'},
-  {id:'p9', cat:'🎯 Pop',    text:'Nenne so viele Süßigkeiten-Marken wie möglich'},
-  {id:'p10',cat:'🎯 Pop',    text:'Nenne so viele Fast-Food-Gerichte wie möglich'},
-  {id:'p11',cat:'🎯 Pop',    text:'Nenne so viele Cocktails wie möglich'},
-  {id:'p12',cat:'🎯 Pop',    text:'Nenne so viele Social-Media-Plattformen wie möglich'},
-  {id:'p13',cat:'🎯 Pop',    text:'Nenne so viele YouTube-Genres wie möglich'},
-  {id:'p14',cat:'🎯 Pop',    text:'Nenne so viele Sportarten wie möglich'},
-  {id:'p15',cat:'🎯 Pop',    text:'Nenne so viele Länder in Europa wie möglich'},
-  // 🌍 WISSEN (20 Fragen)
-  {id:'w1', cat:'🌍 Wissen', text:'Nenne so viele Länder wie möglich'},
-  {id:'w2', cat:'🌍 Wissen', text:'Nenne so viele Hauptstädte wie möglich'},
-  {id:'w3', cat:'🌍 Wissen', text:'Nenne so viele Tiere wie möglich'},
-  {id:'w4', cat:'🌍 Wissen', text:'Nenne so viele Sprachen wie möglich'},
-  {id:'w5', cat:'🌍 Wissen', text:'Nenne so viele Organe wie möglich'},
-  {id:'w6', cat:'🌍 Wissen', text:'Nenne so viele Planeten wie möglich'},
-  {id:'w7', cat:'🌍 Wissen', text:'Nenne so viele Knochen wie möglich'},
-  {id:'w8', cat:'🌍 Wissen', text:'Nenne so viele Elemente aus dem Periodensystem wie möglich'},
-  {id:'w9', cat:'🌍 Wissen', text:'Nenne so viele Gebirge wie möglich'},
-  {id:'w10',cat:'🌍 Wissen', text:'Nenne so viele Meereslebewesen wie möglich'},
-  {id:'w11',cat:'🌍 Wissen', text:'Nenne so viele Berufe wie möglich'},
-  {id:'w12',cat:'🌍 Wissen', text:'Nenne so viele Sportarten wie möglich'},
-  {id:'w13',cat:'🌍 Wissen', text:'Nenne so viele Inseln wie möglich'},
-  {id:'w14',cat:'🌍 Wissen', text:'Nenne so viele Flüsse der Welt wie möglich'},
-  {id:'w15',cat:'🌍 Wissen', text:'Nenne so viele Vitamine wie möglich'},
-  {id:'w16',cat:'🌍 Wissen', text:'Nenne alle Primzahlen unter 100'},
-  {id:'w17',cat:'🌍 Wissen', text:'Nenne so viele Olympische Sportarten wie möglich'},
-  {id:'w18',cat:'🌍 Wissen', text:'Nenne so viele Formel-1-Teams wie möglich'},
-  {id:'w19',cat:'🌍 Wissen', text:'Nenne so viele medizinische Fachgebiete wie möglich'},
-  {id:'w20',cat:'🌍 Wissen', text:'Nenne so viele Kleidungsstücke wie möglich'},
+  // 🔥 CHAOS (30)
+  {id:'c1', cat:'🔥 Chaos', diff:'easy', text:'Wieviele Ausreden fallen dir ein, warum man zu spät kommt?'},
+  {id:'c2', cat:'🔥 Chaos', diff:'easy', text:'Wieviele Dinge könntest du aufzählen, die man im Haus verlieren kann?'},
+  {id:'c3', cat:'🔥 Chaos', diff:'easy', text:'Wieviele Wege fallen dir ein, "bin unterwegs" zu lügen?'},
+  {id:'c4', cat:'🔥 Chaos', diff:'easy', text:'Wieviele Gründe könntest du nennen, ein Date abzubrechen?'},
+  {id:'c5', cat:'🔥 Chaos', diff:'easy', text:'Wieviele Dinge könntest du aufzählen, die deine Eltern sagen die keinen Sinn ergeben?'},
+  {id:'c6', cat:'🔥 Chaos', diff:'medium', text:'Wieviele Tiere könntest du aufzählen, die dich in einem Kampf besiegen würden?'},
+  {id:'c7', cat:'🔥 Chaos', diff:'easy', text:'Wieviele Dinge fallen dir ein, die besser riechen als sie schmecken?'},
+  {id:'c8', cat:'🔥 Chaos', diff:'easy', text:'Wieviele Gründe könntest du nennen, das Handy nicht abzugeben?'},
+  {id:'c9', cat:'🔥 Chaos', diff:'medium', text:'Wieviele Dinge könntest du aufzählen, die du machst ohne es jemandem zu erzählen?'},
+  {id:'c10',cat:'🔥 Chaos', diff:'easy', text:'Wieviele Wege fallen dir ein, eine Prüfung zu vergeigen?'},
+  {id:'c11',cat:'🔥 Chaos', diff:'easy', text:'Wieviele Dinge könntest du aufzählen, die dich täglich nerven?'},
+  {id:'c12',cat:'🔥 Chaos', diff:'easy', text:'Wieviele Fast-Food-Ketten könntest du aufzählen?'},
+  {id:'c13',cat:'🔥 Chaos', diff:'easy', text:'Wieviele Schimpfwörter fallen dir ein?'},
+  {id:'c14',cat:'🔥 Chaos', diff:'hard', text:'Wieviele seltsame Phobien könntest du aufzählen?'},
+  {id:'c15',cat:'🔥 Chaos', diff:'easy', text:'Wieviele Dinge könntest du aufzählen, die du vor dem Schlafen machst?'},
+  {id:'c16',cat:'🔥 Chaos', diff:'easy', text:'Wieviele Dinge fallen dir ein, die du sagst ohne sie so zu meinen?'},
+  {id:'c17',cat:'🔥 Chaos', diff:'easy', text:'Wieviele Ausreden könntest du nennen, nicht Sport zu machen?'},
+  {id:'c18',cat:'🔥 Chaos', diff:'medium', text:'Wieviele Dinge könntest du aufzählen, die du kaufst aber nie benutzt?'},
+  {id:'c19',cat:'🔥 Chaos', diff:'easy', text:'Wieviele Gründe fallen dir ein, jemandem nicht zu antworten?'},
+  {id:'c20',cat:'🔥 Chaos', diff:'medium', text:'Wieviele Dinge könntest du aufzählen, bei denen du täglich lügst?'},
+  {id:'c21',cat:'🔥 Chaos', diff:'hard', text:'Wieviele Wörter fallen dir ein, die kein Mensch versteht?'},
+  {id:'c22',cat:'🔥 Chaos', diff:'easy', text:'Wieviele Gründe könntest du nennen, einen Film abzubrechen?'},
+  {id:'c23',cat:'🔥 Chaos', diff:'easy', text:'Wieviele Dinge könntest du aufzählen, die du immer wieder vergisst?'},
+  {id:'c24',cat:'🔥 Chaos', diff:'medium', text:'Wieviele Arten könntest du nennen, jemandem zu schmeicheln?'},
+  {id:'c25',cat:'🔥 Chaos', diff:'medium', text:'Wieviele Rapper mit Tattoos könntest du aufzählen?'},
+  {id:'c26',cat:'🔥 Chaos', diff:'hard', text:'Wieviele Wege fallen dir ein, einen Streit zu gewinnen ohne Recht zu haben?'},
+  {id:'c27',cat:'🔥 Chaos', diff:'medium', text:'Wieviele Dinge könntest du aufzählen, die du nur machst wenn niemand zuschaut?'},
+  {id:'c28',cat:'🔥 Chaos', diff:'easy', text:'Wieviele Gründe könntest du nennen, nicht aufzuräumen?'},
+  {id:'c29',cat:'🔥 Chaos', diff:'easy', text:'Wieviele Dinge könntest du aufzählen, die du heute schon aufgeschoben hast?'},
+  {id:'c30',cat:'🔥 Chaos', diff:'easy', text:'Wieviele Ausreden fallen dir ein, kein Geld zu haben?'},
+  // 💡 KREATIV (15)
+  {id:'k1', cat:'💡 Kreativ', diff:'medium', text:'Wieviele Verwendungsmöglichkeiten für eine Büroklammer könntest du aufzählen?'},
+  {id:'k2', cat:'💡 Kreativ', diff:'easy',   text:'Wieviele gelbe Dinge könntest du aufzählen?'},
+  {id:'k3', cat:'💡 Kreativ', diff:'easy',   text:'Wieviele runde Dinge fallen dir ein?'},
+  {id:'k4', cat:'💡 Kreativ', diff:'easy',   text:'Wieviele Dinge könntest du auf eine einsame Insel mitnehmen?'},
+  {id:'k5', cat:'💡 Kreativ', diff:'medium', text:'Wieviele leise Dinge könntest du aufzählen?'},
+  {id:'k6', cat:'💡 Kreativ', diff:'medium', text:'Wieviele Dinge könnte man mit Käse machen?'},
+  {id:'k7', cat:'💡 Kreativ', diff:'medium', text:'Wieviele Dinge könntest du aufzählen, die größer als ein Auto sind?'},
+  {id:'k8', cat:'💡 Kreativ', diff:'medium', text:'Wieviele Dinge fallen dir ein, die man im Dunkeln tun kann?'},
+  {id:'k9', cat:'💡 Kreativ', diff:'hard',   text:'Wieviele Dinge könntest du aufzählen, die man nicht kaufen kann?'},
+  {id:'k10',cat:'💡 Kreativ', diff:'hard',   text:'Wieviele Dinge nach Regen könntest du beschreiben?'},
+  {id:'k11',cat:'💡 Kreativ', diff:'medium', text:'Wieviele Gründe könntest du nennen, warum ein Hund besser ist als ein Mensch?'},
+  {id:'k12',cat:'💡 Kreativ', diff:'easy',   text:'Wieviele Dinge könnte man mit einer leeren Flasche tun?'},
+  {id:'k13',cat:'💡 Kreativ', diff:'hard',   text:'Wieviele Dinge könntest du aufzählen, die du nie einem Kind sagen würdest?'},
+  {id:'k14',cat:'💡 Kreativ', diff:'medium', text:'Wieviele Dinge fallen dir ein, die schwerer sind als sie aussehen?'},
+  {id:'k15',cat:'💡 Kreativ', diff:'easy',   text:'Wieviele Dinge könnte man mit Klebeband reparieren?'},
+  // 🎯 POP KULTUR (15)
+  {id:'p1', cat:'🎯 Pop',    diff:'easy',   text:'Wieviele Marvel-Superhelden könntest du aufzählen?'},
+  {id:'p2', cat:'🎯 Pop',    diff:'easy',   text:'Wieviele Disney-Filme könntest du aufzählen?'},
+  {id:'p3', cat:'🎯 Pop',    diff:'easy',   text:'Wieviele Videospiele könntest du aufzählen?'},
+  {id:'p4', cat:'🎯 Pop',    diff:'easy',   text:'Wieviele Brettspiele könntest du aufzählen?'},
+  {id:'p5', cat:'🎯 Pop',    diff:'medium', text:'Wieviele Netflix-Serien könntest du aufzählen?'},
+  {id:'p6', cat:'🎯 Pop',    diff:'medium', text:'Wieviele Musikgenres könntest du aufzählen?'},
+  {id:'p7', cat:'🎯 Pop',    diff:'medium', text:'Wieviele deutsche Rapper könntest du aufzählen?'},
+  {id:'p8', cat:'🎯 Pop',    diff:'easy',   text:'Wieviele Fußballclubs könntest du aufzählen?'},
+  {id:'p9', cat:'🎯 Pop',    diff:'easy',   text:'Wieviele Süßigkeiten-Marken könntest du aufzählen?'},
+  {id:'p10',cat:'🎯 Pop',    diff:'easy',   text:'Wieviele Fast-Food-Gerichte könntest du aufzählen?'},
+  {id:'p11',cat:'🎯 Pop',    diff:'medium', text:'Wieviele Cocktails könntest du aufzählen?'},
+  {id:'p12',cat:'🎯 Pop',    diff:'easy',   text:'Wieviele Social-Media-Plattformen könntest du aufzählen?'},
+  {id:'p13',cat:'🎯 Pop',    diff:'medium', text:'Wieviele YouTube-Genres könntest du aufzählen?'},
+  {id:'p14',cat:'🎯 Pop',    diff:'easy',   text:'Wieviele Sportarten könntest du aufzählen?'},
+  {id:'p15',cat:'🎯 Pop',    diff:'medium', text:'Wieviele Länder in Europa könntest du aufzählen?'},
+  // 🌍 WISSEN (20)
+  {id:'w1', cat:'🌍 Wissen', diff:'easy',   text:'Wieviele Länder der Welt könntest du aufzählen?'},
+  {id:'w2', cat:'🌍 Wissen', diff:'medium', text:'Wieviele Hauptstädte könntest du aufzählen?'},
+  {id:'w3', cat:'🌍 Wissen', diff:'easy',   text:'Wieviele Tiere könntest du aufzählen?'},
+  {id:'w4', cat:'🌍 Wissen', diff:'medium', text:'Wieviele Sprachen der Welt könntest du aufzählen?'},
+  {id:'w5', cat:'🌍 Wissen', diff:'medium', text:'Wieviele Organe des menschlichen Körpers könntest du aufzählen?'},
+  {id:'w6', cat:'🌍 Wissen', diff:'easy',   text:'Wieviele Planeten und Monde könntest du aufzählen?'},
+  {id:'w7', cat:'🌍 Wissen', diff:'hard',   text:'Wieviele Knochen des menschlichen Körpers könntest du aufzählen?'},
+  {id:'w8', cat:'🌍 Wissen', diff:'hard',   text:'Wieviele Elemente aus dem Periodensystem könntest du aufzählen?'},
+  {id:'w9', cat:'🌍 Wissen', diff:'hard',   text:'Wieviele Gebirge der Welt könntest du aufzählen?'},
+  {id:'w10',cat:'🌍 Wissen', diff:'medium', text:'Wieviele Meereslebewesen könntest du aufzählen?'},
+  {id:'w11',cat:'🌍 Wissen', diff:'easy',   text:'Wieviele Berufe könntest du aufzählen?'},
+  {id:'w12',cat:'🌍 Wissen', diff:'easy',   text:'Wieviele Sportarten könntest du aufzählen?'},
+  {id:'w13',cat:'🌍 Wissen', diff:'medium', text:'Wieviele Inseln der Welt könntest du aufzählen?'},
+  {id:'w14',cat:'🌍 Wissen', diff:'medium', text:'Wieviele Flüsse der Welt könntest du aufzählen?'},
+  {id:'w15',cat:'🌍 Wissen', diff:'hard',   text:'Wieviele Vitamine könntest du aufzählen?'},
+  {id:'w16',cat:'🌍 Wissen', diff:'hard',   text:'Wieviele Primzahlen unter 100 könntest du aufzählen?'},
+  {id:'w17',cat:'🌍 Wissen', diff:'medium', text:'Wieviele Olympische Sportarten könntest du aufzählen?'},
+  {id:'w18',cat:'🌍 Wissen', diff:'hard',   text:'Wieviele Formel-1-Teams könntest du aufzählen?'},
+  {id:'w19',cat:'🌍 Wissen', diff:'hard',   text:'Wieviele medizinische Fachgebiete könntest du aufzählen?'},
+  {id:'w20',cat:'🌍 Wissen', diff:'easy',   text:'Wieviele Kleidungsstücke könntest du aufzählen?'},
 ];
-
-// Track used question IDs per room session
-function getRandQ(excludeIds=[]){
-  const pool=QUESTIONS.filter(q=>!excludeIds.includes(q.id));
-  return (pool.length?pool:QUESTIONS)[Math.floor(Math.random()*(pool.length||QUESTIONS.length))];
+function getRandQ(excludeIds=[], forceDiff=null){
+  let pool=QUESTIONS.filter(q=>!excludeIds.includes(q.id));
+  if(!pool.length) pool=QUESTIONS;
+  if(forceDiff) {
+    const diffPool=pool.filter(q=>q.diff===forceDiff);
+    if(diffPool.length) pool=diffPool;
+  }
+  return pool[Math.floor(Math.random()*pool.length)];
 }
 
 const rooms={}, sessions={}, rateLimits={};
@@ -157,6 +160,7 @@ function sanitizeRoom(r){
     revealStep:r.revealStep||0,
     // Judge phase data
     judgeData:r.phase==='judge'?r.judgeData:null,
+    judgeReadyIds:r.phase==='judge'?[...(r.judgeReady||[])]:null,
   };
 }
 
@@ -238,20 +242,19 @@ function startReveal(code){
 function startJudge(code){
   const r=rooms[code];if(!r)return;
   r.phase='judge';
-  // Build judgeData: for each player's list, mark items as invalid if unanimously rejected
+  r.judgeReady=new Set(); // players who pressed ready
   r.judgeData=r.reveals.map(rev=>{
     const otherCount=r.players.length-1;
     const validList=rev.list.filter((_,i)=>{
       const downVotes=Object.keys(rev.thumbsDown[i]||{}).length;
-      return otherCount===0||downVotes<otherCount; // needs ALL others to reject
+      return otherCount===0||downVotes<otherCount;
     });
     return{playerId:rev.playerId,name:rev.name,avatar:rev.avatar,
       origList:rev.list,validList,
       answer:rev.answer,origQ:rev.origQ,swappedQ:rev.swappedQ};
   });
   bcastAll(r);
-  // Auto-advance after 3s
-  setTimeout(()=>calcScores(code),3000);
+  // NO auto-timer – host manually advances after all ready
 }
 
 function calcScores(code){
@@ -443,11 +446,22 @@ io.on('connection',socket=>{
     bcast(r.code);
   });
 
+  socket.on('judgeReady',()=>{
+    if(!rateOk(socket.id))return;
+    const r=rooms[socket.data.code];
+    if(!r||r.phase!=='judge')return;
+    if(!r.judgeReady)r.judgeReady=new Set();
+    r.judgeReady.add(socket.id);
+    bcast(r.code);
+    // Host manually calls calcScores via skipReveal
+  });
+
   socket.on('skipReveal',()=>{
     if(!rateOk(socket.id,2))return;
     const r=rooms[socket.data.code];
-    if(!r||r.phase!=='reveal'||socket.id!==r.hostId)return;
-    stopTimer(r.code);startJudge(r.code);
+    if(!r||socket.id!==r.hostId)return;
+    if(r.phase==='reveal'){stopTimer(r.code);startJudge(r.code);}
+    else if(r.phase==='judge'){stopTimer(r.code);calcScores(r.code);}
   });
 
   socket.on('disconnect',()=>{
