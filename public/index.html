@@ -38,7 +38,7 @@ html,body{width:100%;min-height:100%;background:var(--bg);color:var(--text);font
     radial-gradient(ellipse 50% 40% at 85% 100%,rgba(59,130,246,.06),transparent 60%),
     radial-gradient(ellipse 40% 30% at 50% 50%,rgba(168,85,247,.03),transparent 70%);}
 
-#app{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:16px 14px env(safe-area-inset-bottom,32px);}
+#app{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:12px 12px env(safe-area-inset-bottom,24px);}
 .page{width:100%;max-width:480px;padding-bottom:40px;}
 .page>*{animation:fadeUp .3s ease both;}
 .page>*:nth-child(2){animation-delay:.04s}
@@ -143,13 +143,7 @@ html,body{width:100%;min-height:100%;background:var(--bg);color:var(--text);font
   box-shadow:0 0 0 3px rgba(245,197,24,.2),0 4px 16px rgba(245,197,24,.3);
   animation:popIn .2s ease;
 }
-.av-lbl{
-  position:absolute;bottom:0;left:0;right:0;
-  background:rgba(0,0,0,.55);
-  font-size:8px;font-weight:800;letter-spacing:.5px;
-  color:rgba(255,255,255,.9);text-transform:uppercase;
-  text-align:center;padding:2px 0;line-height:1.4;
-}
+
 
 /* ── PHASE HEADER ── */
 .ph{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
@@ -436,6 +430,24 @@ html,body{width:100%;min-height:100%;background:var(--bg);color:var(--text);font
 .lobby-code:hover{background:rgba(245,197,24,.1);border-color:rgba(245,197,24,.4);}
 .lobby-code-val{font-family:'Bebas Neue',cursive;font-size:clamp(36px,9vw,54px);letter-spacing:10px;color:var(--gold);line-height:1.1;position:relative;}
 
+
+/* ── Mobile optimizations ── */
+@media(max-width:480px){
+  .btn{padding:16px 20px;font-size:15px;}
+  .inp{padding:15px 16px;font-size:16px;}
+  .av-opt{width:52px;height:52px;}
+  .av-grid{gap:6px;}
+  .tag{font-size:14px;padding:7px 13px;}
+  .qtext{font-size:17px;}
+  .bnum{font-size:clamp(80px,20vw,110px);}
+  .plist-chip{padding:12px 14px;}
+  .plist-av{width:46px;height:46px;min-width:46px;}
+  .thumb-row{padding:8px 12px!important;}
+  .inp-row .btn{padding:14px 16px;}
+  .settings-grid{gap:6px;}
+  .setting-box{padding:12px 6px;}
+  .sctrl-btn{width:32px;height:32px;font-size:18px;}
+}
 </style>
 </head>
 <body>
@@ -674,7 +686,7 @@ function routePhase(){
   else if(p==='list_phase'){ if(PRIV){renderList();_screenRendered=true;} }
   else if(p==='reveal')    renderReveal();
   else if(p==='scoreboard'){ renderScoreboard(); _screenRendered=true; }
-  else if(p==='judge')     { /* auto transitions, nothing to render */ }
+  else if(p==='judge')     renderJudge();
   else if(p==='ended')     renderEnded();
 }
 
@@ -775,7 +787,7 @@ function renderAvGrid(){
   g.innerHTML=MEME_AVATARS.map(a=>`
     <div class="av-opt${STATE.avatar===a.id?' sel':''}" onclick="pickAv('${a.id}')" style="background:${a.bg};">
       ${a.svg}
-      <div class="av-lbl">${esc(a.name)}</div>
+
     </div>`).join('');
 }
 function pickAv(id){ STATE.avatar=id; renderAvGrid(); }
@@ -988,7 +1000,10 @@ function renderQ(){
       <div class="timer-top"><div class="sub">ZEIT</div><div class="timer-num${warn?' warn':''}">${ROOM.timer}s</div></div>
       <div class="timer-bar"><div class="timer-fill${warn?' warn':''}" style="width:${pct}%"></div></div>
     </div>
-    <div class="qcard"><div class="qcat">${esc(q.cat)}</div><div class="qtext">${esc(q.text)}</div></div>
+    <div class="qcard">
+      <div class="qcat">${esc(q.cat)}${q.diff==='hard'?' · <span style="color:var(--red);">🔥 SCHWER</span>':q.diff==='medium'?' · <span style="color:var(--gold);">⚡ MITTEL</span>':''}</div>
+      <div class="qtext">${esc(q.text)}</div>
+    </div>
     ${done?`
       <div style="text-align:center;padding:18px 0;">
         <div class="bnum">${esc(String(PRIV.answer))}</div>
@@ -1198,7 +1213,7 @@ function showSpotlight(){
           ${itemsHTML}
         </div>
       </div>
-      ${weiter.replace('{T}',revealIdx+1<total?'NÄCHSTER SPIELER →':'FERTIG ✓')}`;
+      ${weiter.replace('{T}',revealIdx+1<total?'NÄCHSTER SPIELER →':'WEITER ZUR ÜBERPRÜFUNG →')}`;
   }
 
   render(`
@@ -1250,6 +1265,74 @@ function updateThumbsInPlace(reveals){
   }).join('');
 }
 
+
+
+// ═══════════════════════════════════════════════
+//  PHASE JUDGE – Thumbs review with ready system
+// ═══════════════════════════════════════════════
+function renderJudge(){
+  if(!ROOM) return;
+  const isHost=ROOM.hostId===STATE.id;
+  const readyIds=ROOM.judgeReadyIds||[];
+  const myReady=readyIds.includes(STATE.id);
+  const allReady=ROOM.players.every(p=>readyIds.includes(p.id));
+  const total=ROOM.players.length;
+  const readyCount=readyIds.length;
+
+  render(`
+    <div class="ph">
+      <div class="ph-icon" style="font-size:22px;">👎</div>
+      <div><div class="sub">AUSWERTUNG</div><div class="ph-title">WÖRTER ÜBERPRÜFEN</div></div>
+      <div class="ph-badge">${readyCount}/${total} bereit</div>
+    </div>
+    <div style="font-size:13px;color:var(--muted2);margin-bottom:16px;text-align:center;line-height:1.6;">
+      Lehnt ungültige Wörter ab – wenn <strong style="color:var(--text);">alle anderen</strong> 👎 drücken, scheidet das Wort aus.
+    </div>
+    ${(ROOM.judgeData||[]).map(jd=>{
+      const otherCount=total-1;
+      const rev=ROOM.reveals?.find(r=>r.playerId===jd.playerId);
+      const thumbsDown=rev?.thumbsDown||{};
+      const isOwn=jd.playerId===STATE.id;
+      return`<div class="card-glass" style="margin-bottom:10px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+          <div style="width:36px;height:36px;border-radius:10px;overflow:hidden;">${getAv(jd.avatar,'36px')}</div>
+          <div>
+            <div style="font-weight:700;font-size:14px;">${esc(jd.name)}</div>
+            <div style="font-size:11px;color:var(--muted);">${jd.validList.length} von ${jd.answer} gültig</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          ${jd.origList.length===0
+            ?'<div style="color:var(--red);font-size:13px;padding:6px;">nichts geschrieben 💀</div>'
+            :jd.origList.map((item,i)=>{
+              const dv=Object.keys(thumbsDown[i]||{}).length;
+              const rejected=dv>=otherCount&&otherCount>0;
+              const iVoted=!!(thumbsDown[i]?.[STATE.id]);
+              return`<div class="thumb-row" style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:rgba(255,255,255,.03);border-radius:10px;border:1px solid ${rejected?'rgba(239,68,68,.25)':'rgba(255,255,255,.05)'};">
+                <div style="flex:1;font-size:13px;font-weight:600;${rejected?'opacity:.3;text-decoration:line-through;color:var(--red);':''};">${esc(item)}</div>
+                ${!isOwn?`<div onclick="thumbDown('${jd.playerId}',${i})" style="display:flex;align-items:center;gap:4px;cursor:pointer;padding:5px 10px;border-radius:8px;background:${iVoted?'rgba(239,68,68,.18)':'rgba(255,255,255,.04)'};border:1px solid ${iVoted?'rgba(239,68,68,.35)':'rgba(255,255,255,.07)'};min-width:52px;justify-content:center;transition:all .15s;">
+                  <span style="font-size:15px;">👎</span>
+                  <span style="font-size:12px;font-weight:700;color:${rejected?'var(--red)':iVoted?'#ff8888':'var(--muted)'};">${dv}/${otherCount}</span>
+                </div>`:'<span style="font-size:11px;color:var(--muted);padding:0 4px;">dein Wort</span>'}
+                ${rejected?'<span style="color:var(--red);font-size:13px;">✗</span>':''}
+              </div>`;
+            }).join('')}
+        </div>
+      </div>`;
+    }).join('')}
+
+    ${myReady
+      ?`<div class="waiting-pill" style="margin-top:8px;">✅ Warte auf andere<span class="waiting"></span></div>`
+      :`<button class="btn btn-green" onclick="pressJudgeReady()" style="margin-top:8px;">✅ FERTIG – BEREIT ZUR AUSWERTUNG</button>`}
+
+    ${isHost&&allReady
+      ?`<button class="start-game-btn" onclick="socket.emit('skipReveal')" style="margin-top:8px;">📊 AUSWERTUNG STARTEN →</button>`
+      :isHost
+        ?`<div style="text-align:center;font-size:12px;color:var(--muted);margin-top:8px;">${readyCount}/${total} bereit – warte auf alle<span class="waiting"></span></div>`
+        :''}
+  `);
+}
+function pressJudgeReady(){ socket.emit('judgeReady'); }
 
 
 // ═══════════════════════════════════════════════
