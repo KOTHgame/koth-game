@@ -478,7 +478,7 @@ html,body{width:100%;min-height:100%;background:var(--bg);color:var(--text);font
     <div style="text-align:center;color:var(--muted);font-size:11px;letter-spacing:2px;margin-bottom:14px;">MENÜ</div>
     <div class="menu-item" onclick="copyText(STATE.code||'');closeMenu()">🔗 Room-Code kopieren</div>
     <div class="menu-item" onclick="showTutorial();closeMenu()">📖 Wie spielt man?</div>
-    <div class="menu-item" id="sound-toggle" onclick="toggleSound()">🔊 Sound an</div>
+
     <div class="menu-item danger" onclick="leaveGame()">🚪 Spiel verlassen</div>
     <div class="menu-item" onclick="closeMenu()" style="color:var(--muted);">✕ Schließen</div>
   </div>
@@ -541,11 +541,6 @@ function toast(msg,dur=2800){
 function copyText(t){ navigator.clipboard?.writeText(t).then(()=>toast('✅ Code kopiert!')).catch(()=>{}); }
 function toggleMenu(){ $('menu-overlay').classList.toggle('open'); }
 function closeMenu(){ $('menu-overlay').classList.remove('open'); }
-function toggleSound(){
-  SND.enabled=!SND.enabled;
-  const btn=$('sound-toggle');
-  if(btn) btn.innerHTML=(SND.enabled?'🔊 Sound an':'🔇 Sound aus');
-}
 function leaveGame(){ if(confirm('Spiel wirklich verlassen?')) location.reload(); }
 function hideLoading(){ const l=$('loading'); if(l){l.classList.add('gone'); setTimeout(()=>l.remove(),500);} }
 
@@ -585,10 +580,7 @@ socket.on('connect',()=>{
   if(tok&&STATE.code){
     socket.emit('joinRoom',{code:STATE.code,name:STATE.name,avatar:STATE.avatar,token:tok});
   } else {
-    if(!ROOM){
-      if(checkFirstTime()) showOnboarding();
-      else showStart();
-    }
+    if(!ROOM) showStart();
   }
 });
 
@@ -601,10 +593,7 @@ socket.on('reconnect',()=>{
   toast('🔄 Wiederverbunden!');
 });
 
-socket.on('err',({msg})=>{
-  SND.error();
-  toast('❌ '+msg);
-});
+socket.on('err',({msg})=>toast('❌ '+msg));
 socket.on('kicked',()=>{ toast('❌ Du wurdest gekickt'); setTimeout(()=>location.reload(),2000); });
 socket.on('promoted',({msg})=>toast('👑 '+msg));
 
@@ -706,7 +695,6 @@ function updateQTimer(){
   if(!ROOM) return;
   const pct=Math.min(100,(ROOM.timer/(ROOM.answerTime||20))*100),warn=ROOM.timer<=5;
   const tn=document.querySelector('.timer-num'),tf=document.querySelector('.timer-fill');
-  if(warn&&ROOM.timer===10)SND.warn();
   if(tn){tn.textContent=ROOM.timer+'s';tn.className='timer-num'+(warn?' warn':'');}
   if(tf){tf.style.width=pct+'%';tf.className='timer-fill'+(warn?' warn':'');}
   const st=$('q-status');
@@ -974,7 +962,7 @@ function changeSetting(key,delta){
   const nv=Math.max(lim[key][0],Math.min(lim[key][1],ROOM[key]+delta));
   socket.emit('updateSettings',{[key]:nv});
 }
-function toggleReady(){ const me=ROOM?.players.find(p=>p.id===STATE.id); socket.emit('setReady',{ready:!me?.ready}); SND.ready(); }
+function toggleReady(){ const me=ROOM?.players.find(p=>p.id===STATE.id); socket.emit('setReady',{ready:!me?.ready}); }
 function startGame(){ socket.emit('startGame'); }
 function kickPlayer(id){ socket.emit('kickPlayer',{targetId:id}); }
 
@@ -983,7 +971,6 @@ function kickPlayer(id){ socket.emit('kickPlayer',{targetId:id}); }
 // ═══════════════════════════════════════════════
 function renderCountdown(){
   if(!ROOM) return;
-  SND.countdown(ROOM.timer||3);
   render(`<div class="countdown-screen">
     <div class="sub" style="margin-bottom:8px;">RUNDE ${ROOM.round} / ${ROOM.maxRounds} STARTET IN</div>
     <div class="countdown-num">${ROOM.timer||3}</div>
@@ -1040,7 +1027,7 @@ function renderQ(){
 function submitAnswer(){
   const v=parseInt($('numInp')?.value);
   if(!v||v<3) return toast('❌ Mindestens 3 eingeben');
-  socket.emit('submitAnswer',{value:v}); SND.ready();
+  socket.emit('submitAnswer',{value:v});
 }
 
 // ═══════════════════════════════════════════════
@@ -1109,7 +1096,7 @@ function addItem(){
   const v=inp.value.trim(); if(!v) return;
   if(v.length<2) return toast('⚠️ Mind. 2 Zeichen');
   if(listItems.map(x=>x.toLowerCase()).includes(v.toLowerCase())){toast('⚠️ Schon in der Liste');inp.value='';return;}
-  listItems.push(v); inp.value=''; SND.pop();
+  listItems.push(v); inp.value='';
   updateTagArea();
   setTimeout(()=>$('listInp')?.focus(),40);
 }
@@ -1241,7 +1228,6 @@ function showSpotlight(){
 
 function hostNextSpot(){
   if(ROOM?.hostId!==STATE.id) return;
-  SND.reveal();
   revealStep++;
   if(revealStep>3){ revealStep=0; revealIdx++; }
   socket.emit('revealStep',{idx:revealIdx,step:revealStep});
@@ -1249,7 +1235,7 @@ function hostNextSpot(){
 }
 function nextSpot(){ if(ROOM?.hostId===STATE.id) hostNextSpot(); }
 function thumbDown(targetPlayerId,itemIdx){
-  socket.emit('thumbsDown',{targetPlayerId,itemIdx}); SND.thumbs();
+  socket.emit('thumbsDown',{targetPlayerId,itemIdx});
 }
 
 function updateThumbsInPlace(reveals){
@@ -1424,7 +1410,6 @@ function renderScoreboard(){
 // ═══════════════════════════════════════════════
 function renderEnded(){
   if(!ROOM) return;
-  SND.score(); launchConfetti(4000);
   const sorted=[...ROOM.players].sort((a,b)=>b.score-a.score);
   const winner=sorted[0],isHost=ROOM.hostId===STATE.id;
   const medals=['🥇','🥈','🥉'];
