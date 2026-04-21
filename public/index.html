@@ -34,9 +34,10 @@ html,body{width:100%;min-height:100%;background:var(--bg);color:var(--text);font
 .bg-img{position:fixed;inset:0;z-index:0;opacity:.08;background-size:cover;background-position:center;pointer-events:none;}
 .bg-glow{position:fixed;inset:0;z-index:0;pointer-events:none;
   background:
-    radial-gradient(ellipse 70% 50% at 15% 0%,rgba(245,197,24,.07),transparent 60%),
-    radial-gradient(ellipse 50% 40% at 85% 100%,rgba(59,130,246,.06),transparent 60%),
-    radial-gradient(ellipse 40% 30% at 50% 50%,rgba(168,85,247,.03),transparent 70%);}
+    radial-gradient(ellipse 80% 60% at 10% 5%,rgba(245,197,24,.12),transparent 55%),
+    radial-gradient(ellipse 60% 50% at 90% 95%,rgba(59,130,246,.1),transparent 55%),
+    radial-gradient(ellipse 50% 40% at 50% 50%,rgba(168,85,247,.06),transparent 65%),
+    radial-gradient(ellipse 40% 30% at 80% 20%,rgba(239,68,68,.05),transparent 50%);}
 
 #app{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:12px 12px env(safe-area-inset-bottom,24px);}
 .page{width:100%;max-width:480px;padding-bottom:40px;}
@@ -131,8 +132,8 @@ html,body{width:100%;min-height:100%;background:var(--bg);color:var(--text);font
 /* ── AVATAR GRID ── */
 .av-grid{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0 16px;}
 .av-opt{
-  width:58px;height:58px;border-radius:15px;
-  border:2.5px solid transparent;cursor:pointer;overflow:hidden;
+  width:56px;height:56px;border-radius:50%;
+  border:2.5px solid rgba(255,255,255,.15);cursor:pointer;overflow:hidden;
   transition:transform .15s,border-color .15s,box-shadow .15s;flex-shrink:0;
   position:relative;
 }
@@ -140,7 +141,7 @@ html,body{width:100%;min-height:100%;background:var(--bg);color:var(--text);font
 .av-opt:hover{transform:scale(1.1);}
 .av-opt.sel{
   border-color:var(--gold);
-  box-shadow:0 0 0 3px rgba(245,197,24,.2),0 4px 16px rgba(245,197,24,.3);
+  box-shadow:0 0 0 3px rgba(245,197,24,.25),0 4px 20px rgba(245,197,24,.35);
   animation:popIn .2s ease;
 }
 
@@ -193,7 +194,8 @@ html,body{width:100%;min-height:100%;background:var(--bg);color:var(--text);font
 .plist-chip.offline{opacity:.3;}
 .plist-av{
   width:44px;height:44px;min-width:44px;
-  border-radius:12px;overflow:hidden;flex-shrink:0;
+  border-radius:50%;overflow:hidden;flex-shrink:0;
+  border:2px solid rgba(255,255,255,.12);
 }
 .plist-av>div{width:100%;height:100%;}
 .plist-name{font-size:14px;font-weight:700;}
@@ -337,7 +339,7 @@ html,body{width:100%;min-height:100%;background:var(--bg);color:var(--text);font
 .sc-row.r3{border-color:rgba(180,83,9,.3);}
 .sc-row.me{border-color:rgba(245,197,24,.25);}
 .sc-rank{font-family:'Bebas Neue',cursive;font-size:22px;width:28px;text-align:center;}
-.sc-av{width:32px;height:32px;min-width:32px;border-radius:9px;overflow:hidden;}
+.sc-av{width:32px;height:32px;min-width:32px;border-radius:50%;overflow:hidden;border:2px solid rgba(255,255,255,.12);}
 .sc-nm{font-weight:700;font-size:13px;flex:1;}
 .sc-pts{font-family:'Bebas Neue',cursive;font-size:28px;color:var(--gold);}
 .sc-delta{
@@ -654,6 +656,10 @@ socket.on('roomState',state=>{
     updateThumbsInPlace(state.reveals||[]);
     return;
   }
+  if(state.phase==='judge'){
+    if(state.reveals) ROOM.reveals=state.reveals;
+    renderJudge(); return;
+  }
   if(state.phase==='scoreboard') { updateScoreTimer(); return; }
   routePhase();
 });
@@ -700,7 +706,7 @@ function updateQTimer(){
   const st=$('q-status');
   if(st) st.innerHTML=ROOM.players.map(p=>`
     <div class="pchip${p.id===STATE.id?' me':''}">
-      <div class="av" style="width:32px;height:32px;">${getAv(p.avatar)}</div><div class="nm">${esc(p.name)}</div>
+      <div class="av">${getAv(p.avatar,'40px',true)}</div><div class="nm">${esc(p.name)}</div>
       <div style="font-size:12px;color:${p.hasAnswered?'var(--green)':'var(--muted)'}">${p.hasAnswered?'✅':'⏳'}</div>
     </div>`).join('');
 }
@@ -720,7 +726,7 @@ function updateListTimer(){
   const st=$('list-status');
   if(st) st.innerHTML=ROOM.players.map(p=>`
     <div class="pchip${p.id===STATE.id?' me':''}">
-      <div class="av" style="width:32px;height:32px;">${getAv(p.avatar)}</div><div class="nm">${esc(p.name)}</div>
+      <div class="av">${getAv(p.avatar,'40px',true)}</div><div class="nm">${esc(p.name)}</div>
       <div style="font-size:12px;color:${p.hasList?'var(--green)':'var(--muted)'}">${p.hasList?'✅':'⏳'}</div>
     </div>`).join('');
 }
@@ -791,11 +797,13 @@ function renderAvGrid(){
     </div>`).join('');
 }
 function pickAv(id){ STATE.avatar=id; renderAvGrid(); }
-function getAv(id,size){
+function getAv(id,size,circle=false){
   const a=MEME_AVATARS.find(a=>a.id===id);
   if(!a) return '';
   const s=size||'100%';
-  return `<div style="width:${s};height:${s};border-radius:8px;overflow:hidden;background:${a.bg};flex-shrink:0;display:block;">${a.svg}</div>`;
+  const br=circle?'50%':'10px';
+  const border=circle?'border:2px solid rgba(255,255,255,.15);':'';
+  return `<div style="width:${s};height:${s};border-radius:${br};overflow:hidden;background:${a.bg};flex-shrink:0;display:block;${border}">${a.svg}</div>`;
 }
 
 function createRoom(){
@@ -855,7 +863,7 @@ function lobbyPlayersHTML(){
   const isHost=ROOM.hostId===STATE.id;
   return ROOM.players.map(p=>`
     <div class="plist-chip ${p.ready?'ready':''} ${p.id===STATE.id?'me':''} ${!p.connected?'offline':''}">
-      <div class="plist-av" style="background:${MEME_AVATARS.find(a=>a.id===p.avatar)?.bg||'#333'};">${getAv(p.avatar,'44px')}</div>
+      <div class="plist-av" style="background:${MEME_AVATARS.find(a=>a.id===p.avatar)?.bg||'#333'};">${getAv(p.avatar,'44px',true)}</div>
       <div class="plist-info">
         <div class="plist-name">${esc(p.name)}${p.id===STATE.id?' <span style="color:var(--gold);font-size:11px;">(du)</span>':''}</div>
         <div class="plist-sub" style="color:${p.ready?'var(--green)':p.connected?'var(--muted)':'var(--red)'}">
@@ -1019,7 +1027,7 @@ function renderQ(){
       </div>
     `}
     <div id="q-status" style="margin-top:14px;">
-      ${ROOM.players.map(p=>`<div class="pchip${p.id===STATE.id?' me':''}"><div class="av" style="width:28px;height:28px;">${getAv(p.avatar)}</div><div class="nm">${esc(p.name)}</div><div style="font-size:12px;color:${p.hasAnswered?'var(--green)':'var(--muted)'}">${p.hasAnswered?'✅':'⏳'}</div></div>`).join('')}
+      ${ROOM.players.map(p=>`<div class="pchip${p.id===STATE.id?' me':''}"><div class="av">${getAv(p.avatar,'40px',true)}</div><div class="nm">${esc(p.name)}</div><div style="font-size:12px;color:${p.hasAnswered?'var(--green)':'var(--muted)'}">${p.hasAnswered?'✅':'⏳'}</div></div>`).join('')}
     </div>
   `);
   if(!done) setTimeout(()=>$('numInp')?.focus(),80);
@@ -1086,7 +1094,7 @@ function renderList(){
       </button>
     `}
     <div id="list-status" style="margin-top:14px;">
-      ${ROOM.players.map(p=>`<div class="pchip${p.id===STATE.id?' me':''}"><div class="av" style="width:28px;height:28px;">${getAv(p.avatar)}</div><div class="nm">${esc(p.name)}</div><div style="font-size:12px;color:${p.hasList?'var(--green)':'var(--muted)'}">${p.hasList?'✅':'⏳'}</div></div>`).join('')}
+      ${ROOM.players.map(p=>`<div class="pchip${p.id===STATE.id?' me':''}"><div class="av">${getAv(p.avatar,'40px',true)}</div><div class="nm">${esc(p.name)}</div><div style="font-size:12px;color:${p.hasList?'var(--green)':'var(--muted)'}">${p.hasList?'✅':'⏳'}</div></div>`).join('')}
     </div>
   `);
   if(!done) setTimeout(()=>$('listInp')?.focus(),80);
@@ -1295,7 +1303,7 @@ function renderJudge(){
       const isOwn=jd.playerId===STATE.id;
       return`<div class="card-glass" style="margin-bottom:10px;">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-          <div style="width:36px;height:36px;border-radius:10px;overflow:hidden;">${getAv(jd.avatar,'36px')}</div>
+          <div style="width:36px;height:36px;border-radius:10px;overflow:hidden;">${getAv(jd.avatar,'36px',true)}</div>
           <div>
             <div style="font-weight:700;font-size:14px;">${esc(jd.name)}</div>
             <div style="font-size:11px;color:var(--muted);">${jd.validList.length} von ${jd.answer} gültig</div>
@@ -1365,7 +1373,7 @@ function renderScoreboard(){
         const d=ROOM.roundScores?.[p.id];
         const isMe=p.id===STATE.id;
         return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;animation:fadeUp .4s ease both;animation-delay:${col*.1}s">
-          <div style="font-size:${podiumSizes[realRank]};filter:${isMe?'drop-shadow(0 0 12px '+podiumColors[realRank]+'80)':'none'}">${esc(p.avatar)}</div>
+          <div style="width:${podiumSizes[realRank]};height:${podiumSizes[realRank]};border-radius:50%;overflow:hidden;margin:0 auto;border:3px solid ${podiumColors[realRank]};box-shadow:0 0 20px ${podiumColors[realRank]}66;">${getAv(p.avatar,'100%',false)}</div>
           <div style="font-family:'Bebas Neue',cursive;font-size:13px;color:${podiumColors[realRank]};letter-spacing:1px;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(p.name)}</div>
           <div style="font-family:'Bebas Neue',cursive;font-size:22px;color:${podiumColors[realRank]};">${p.score}</div>
           ${d?`<div style="font-size:11px;color:var(--green);font-weight:700;">+${d.total}</div>`:''}
@@ -1382,7 +1390,7 @@ function renderScoreboard(){
       const d=ROOM.roundScores?.[p.id];
       return`<div class="sc-row${p.id===STATE.id?' me':''}">
         <div class="sc-rank" style="color:var(--muted)">${rank}</div>
-        <div class="sc-av" style="width:28px;height:28px;border-radius:8px;overflow:hidden;">${getAv(p.avatar)}</div>
+        <div class="sc-av" >${getAv(p.avatar,'32px',true)}</div>
         <div class="sc-nm">${esc(p.name)}${p.id===STATE.id?' <span style="color:var(--gold);font-size:11px;">(du)</span>':''}</div>
         ${d?`<div style="text-align:right;"><div class="sc-pts">${p.score}</div><div class="sc-delta">+${d.total}</div></div>`:`<div class="sc-pts">${p.score}</div>`}
       </div>`;}).join('')}
@@ -1417,14 +1425,14 @@ function renderEnded(){
     <div style="text-align:center;padding:28px 0 20px;">
       <div style="font-size:72px;margin-bottom:8px;" class="pulse">${winner?.id===STATE.id?'👑':'🏆'}</div>
       <div class="heading">${winner?.id===STATE.id?'DU GEWINNST!':'GAME OVER'}</div>
-      <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:10px;"><div style="width:36px;height:36px;border-radius:10px;overflow:hidden;">${getAv(winner?.avatar)}</div><span style="font-size:18px;font-weight:700;color:var(--gold);">${esc(winner?.name)}</span></div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:10px;"><div style="width:36px;height:36px;border-radius:10px;overflow:hidden;">${getAv(winner?.avatar,'40px',true)}</div><span style="font-size:18px;font-weight:700;color:var(--gold);">${esc(winner?.name)}</span></div>
       <div style="color:var(--muted);font-size:13px;margin-top:4px;">${winner?.score} Punkte</div>
     </div>
     <div style="margin-bottom:16px;">
       ${sorted.map((p,i)=>`
         <div class="sc-row${i===0?' r1':i===1?' r2':i===2?' r3':''}" style="animation-delay:${i*.07}s">
           <div class="sc-rank">${medals[i]||i+1}</div>
-          <div class="sc-av" style="width:28px;height:28px;border-radius:8px;overflow:hidden;">${getAv(p.avatar)}</div>
+          <div class="sc-av" >${getAv(p.avatar,'32px',true)}</div>
           <div class="sc-nm">${esc(p.name)}${p.id===STATE.id?' 👈':''}</div>
           <div class="sc-pts">${p.score}</div>
         </div>`).join('')}
