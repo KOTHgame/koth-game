@@ -473,11 +473,12 @@ html,body{width:100%;min-height:100%;background:var(--bg);color:var(--text);font
 <div id="toast"></div>
 <div id="menu-btn" onclick="toggleMenu()">⋯</div>
 
-<div id="menu-overlay" onclick="closeMenu()">
+  <div id="menu-overlay" onclick="closeMenu()">
   <div class="menu-sheet" onclick="event.stopPropagation()">
     <div style="text-align:center;color:var(--muted);font-size:11px;letter-spacing:2px;margin-bottom:14px;">MENÜ</div>
     <div class="menu-item" onclick="copyText(STATE.code||'');closeMenu()">🔗 Room-Code kopieren</div>
     <div class="menu-item" onclick="showTutorial();closeMenu()">📖 Wie spielt man?</div>
+    <div class="menu-item" id="sound-toggle" onclick="toggleSound()">🔊 Sound an</div>
     <div class="menu-item danger" onclick="leaveGame()">🚪 Spiel verlassen</div>
     <div class="menu-item" onclick="closeMenu()" style="color:var(--muted);">✕ Schließen</div>
   </div>
@@ -540,6 +541,11 @@ function toast(msg,dur=2800){
 function copyText(t){ navigator.clipboard?.writeText(t).then(()=>toast('✅ Code kopiert!')).catch(()=>{}); }
 function toggleMenu(){ $('menu-overlay').classList.toggle('open'); }
 function closeMenu(){ $('menu-overlay').classList.remove('open'); }
+function toggleSound(){
+  SND.enabled=!SND.enabled;
+  const btn=$('sound-toggle');
+  if(btn) btn.innerHTML=(SND.enabled?'🔊 Sound an':'🔇 Sound aus');
+}
 function leaveGame(){ if(confirm('Spiel wirklich verlassen?')) location.reload(); }
 function hideLoading(){ const l=$('loading'); if(l){l.classList.add('gone'); setTimeout(()=>l.remove(),500);} }
 
