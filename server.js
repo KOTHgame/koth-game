@@ -325,7 +325,7 @@ function startReveal(code){
     thumbsDown:{},
   }));
   bcastAll(r);
-  startTimer(code,Math.max(120,r.players.length*30),()=>startJudge(code));
+  startTimer(code,300,()=>startJudge(code)); // 5min fallback, host controls manually
 }
 
 // Judge phase: finalize thumbs-down results and calc scores
