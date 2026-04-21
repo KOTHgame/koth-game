@@ -575,12 +575,14 @@ socket.on('connect',()=>{
   hideLoading();
   $('conn-banner').classList.remove('show');
   STATE.id = socket.id;
-  // Try reconnect with stored token
   const tok=loadToken();
   if(tok&&STATE.code){
     socket.emit('joinRoom',{code:STATE.code,name:STATE.name,avatar:STATE.avatar,token:tok});
   } else {
-    if(!ROOM) showStart();
+    if(!ROOM){
+      if(checkFirstTime()) showOnboarding();
+      else showStart();
+    }
   }
 });
 
@@ -593,7 +595,10 @@ socket.on('reconnect',()=>{
   toast('🔄 Wiederverbunden!');
 });
 
-socket.on('err',  ({msg})=>toast('❌ '+msg));
+socket.on('err',({msg})=>{
+  SND.error();
+  toast('❌ '+msg);
+});
 socket.on('kicked',()=>{ toast('❌ Du wurdest gekickt'); setTimeout(()=>location.reload(),2000); });
 socket.on('promoted',({msg})=>toast('👑 '+msg));
 
@@ -695,6 +700,7 @@ function updateQTimer(){
   if(!ROOM) return;
   const pct=Math.min(100,(ROOM.timer/(ROOM.answerTime||20))*100),warn=ROOM.timer<=5;
   const tn=document.querySelector('.timer-num'),tf=document.querySelector('.timer-fill');
+  if(warn&&ROOM.timer===10)SND.warn();
   if(tn){tn.textContent=ROOM.timer+'s';tn.className='timer-num'+(warn?' warn':'');}
   if(tf){tf.style.width=pct+'%';tf.className='timer-fill'+(warn?' warn':'');}
   const st=$('q-status');
@@ -962,7 +968,7 @@ function changeSetting(key,delta){
   const nv=Math.max(lim[key][0],Math.min(lim[key][1],ROOM[key]+delta));
   socket.emit('updateSettings',{[key]:nv});
 }
-function toggleReady(){ const me=ROOM?.players.find(p=>p.id===STATE.id); socket.emit('setReady',{ready:!me?.ready}); }
+function toggleReady(){ const me=ROOM?.players.find(p=>p.id===STATE.id); socket.emit('setReady',{ready:!me?.ready}); SND.ready(); }
 function startGame(){ socket.emit('startGame'); }
 function kickPlayer(id){ socket.emit('kickPlayer',{targetId:id}); }
 
@@ -971,6 +977,7 @@ function kickPlayer(id){ socket.emit('kickPlayer',{targetId:id}); }
 // ═══════════════════════════════════════════════
 function renderCountdown(){
   if(!ROOM) return;
+  SND.countdown(ROOM.timer||3);
   render(`<div class="countdown-screen">
     <div class="sub" style="margin-bottom:8px;">RUNDE ${ROOM.round} / ${ROOM.maxRounds} STARTET IN</div>
     <div class="countdown-num">${ROOM.timer||3}</div>
@@ -1001,7 +1008,7 @@ function renderQ(){
       <div class="timer-bar"><div class="timer-fill${warn?' warn':''}" style="width:${pct}%"></div></div>
     </div>
     <div class="qcard">
-      <div class="qcat">${esc(q.cat)}${q.diff==='hard'?' · <span style="color:var(--red);">🔥 SCHWER</span>':q.diff==='medium'?' · <span style="color:var(--gold);">⚡ MITTEL</span>':''}</div>
+      <div class="qcat">${esc(q.cat)}${q.diff==='hard'?' · <span style="color:var(--red);animation:pulse 1.5s ease-in-out infinite;">🔥 SCHWER</span>':q.diff==='medium'?' · <span style="color:var(--gold);">⚡ MITTEL</span>':''}</div>
       <div class="qtext">${esc(q.text)}</div>
     </div>
     ${done?`
@@ -1027,7 +1034,7 @@ function renderQ(){
 function submitAnswer(){
   const v=parseInt($('numInp')?.value);
   if(!v||v<3) return toast('❌ Mindestens 3 eingeben');
-  socket.emit('submitAnswer',{value:v});
+  socket.emit('submitAnswer',{value:v}); SND.ready();
 }
 
 // ═══════════════════════════════════════════════
@@ -1096,7 +1103,7 @@ function addItem(){
   const v=inp.value.trim(); if(!v) return;
   if(v.length<2) return toast('⚠️ Mind. 2 Zeichen');
   if(listItems.map(x=>x.toLowerCase()).includes(v.toLowerCase())){toast('⚠️ Schon in der Liste');inp.value='';return;}
-  listItems.push(v); inp.value='';
+  listItems.push(v); inp.value=''; SND.pop();
   updateTagArea();
   setTimeout(()=>$('listInp')?.focus(),40);
 }
@@ -1228,6 +1235,7 @@ function showSpotlight(){
 
 function hostNextSpot(){
   if(ROOM?.hostId!==STATE.id) return;
+  SND.reveal();
   revealStep++;
   if(revealStep>3){ revealStep=0; revealIdx++; }
   socket.emit('revealStep',{idx:revealIdx,step:revealStep});
@@ -1235,7 +1243,7 @@ function hostNextSpot(){
 }
 function nextSpot(){ if(ROOM?.hostId===STATE.id) hostNextSpot(); }
 function thumbDown(targetPlayerId,itemIdx){
-  socket.emit('thumbsDown',{targetPlayerId,itemIdx});
+  socket.emit('thumbsDown',{targetPlayerId,itemIdx}); SND.thumbs();
 }
 
 function updateThumbsInPlace(reveals){
@@ -1410,6 +1418,7 @@ function renderScoreboard(){
 // ═══════════════════════════════════════════════
 function renderEnded(){
   if(!ROOM) return;
+  SND.score(); launchConfetti(4000);
   const sorted=[...ROOM.players].sort((a,b)=>b.score-a.score);
   const winner=sorted[0],isHost=ROOM.hostId===STATE.id;
   const medals=['🥇','🥈','🥉'];
@@ -1432,10 +1441,21 @@ function renderEnded(){
     ${isHost
       ?`<button class="btn btn-gold" onclick="rematch()">🔄 NOCHMAL SPIELEN</button>`
       :`<div style="text-align:center;color:var(--muted);font-size:13px;margin-bottom:12px;">Warte auf Host für Rematch<span class="waiting"></span></div>`}
-    <button class="btn btn-ghost" onclick="location.reload()">🚪 VERLASSEN</button>
+    <button class="btn btn-ghost" onclick="shareResult()" style="opacity:.8;">📤 ERGEBNIS TEILEN</button>
+    <button class="btn btn-ghost" onclick="location.reload()" style="opacity:.5;font-size:12px;padding:10px;">🚪 Verlassen</button>
   `);
 }
 function rematch(){ socket.emit('rematch'); }
+function shareResult(){
+  if(!ROOM) return;
+  const sorted=[...ROOM.players].sort((a,b)=>b.score-a.score);
+  const lines=['👑 KING OF THE HILL – Ergebnis',''];
+  sorted.forEach((p,i)=>{ lines.push(`${['🥇','🥈','🥉'][i]||i+1+'.'} ${p.name}: ${p.score} Punkte`); });
+  lines.push('','Spiel: koth-game-production.up.railway.app');
+  const text=lines.join('\n');
+  if(navigator.share){navigator.share({text,title:'KOTH Ergebnis'}).catch(()=>{});}
+  else{navigator.clipboard?.writeText(text).then(()=>toast('✅ Ergebnis kopiert!')).catch(()=>toast('📋 '+text.slice(0,60)+'...'));}
+}
 </script>
 </body>
 </html>
